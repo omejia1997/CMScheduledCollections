@@ -9,39 +9,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+import com.banquito.scheduled.collections.process.ReadAndInsertTask;
 
 @Configuration
 @EnableAutoConfiguration
 @EnableBatchProcessing
 public class JobConfig {
-    
+
     @Autowired
     private JobBuilderFactory jobs;
 
     @Autowired
     private StepBuilderFactory steps;
-    /*
+
+    @Autowired
+    private RestTemplate restTemplate;
+    
+    @Autowired
+    private BaseURLValues baseURLs;
+    
     @Bean
     protected Step readAndInsertTask() {
         return steps
                 .get("readAndInsertTask")
-                .tasklet(new ReadAndInsertTask())
-                .build();
-    }
-
-    @Bean
-    protected Step reverseDataTask() {
-        return steps
-                .get("reverseDataTask")
-                .tasklet(new ReverseDataTask(this.mongoTemplate))
-                .build();
-    }
-
-    @Bean
-    protected Step summaryTask() {
-        return steps
-                .get("summaryTask")
-                .tasklet(new SummaryTask(this.mongoTemplate))
+                .tasklet(new ReadAndInsertTask(restTemplate,baseURLs))
                 .build();
     }
 
@@ -50,10 +43,6 @@ public class JobConfig {
         return jobs
                 .get("processTextFileJob")
                 .start(readAndInsertTask())
-                .next(reverseDataTask())
-                .next(summaryTask())
                 .build();
     }
-    */
-
 }
