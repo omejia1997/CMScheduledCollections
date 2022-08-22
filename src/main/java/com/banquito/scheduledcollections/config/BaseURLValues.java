@@ -1,4 +1,4 @@
-package com.banquito.scheduled.collections.config;
+package com.banquito.scheduledcollections.config;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,19 +11,20 @@ public class BaseURLValues {
 
   private final String cmAccountingJournalEntryURL;
 
-  private final String cmCollectionOrderURL;
+  private final String cmClientsAccountsURL;
 
   private final String cmAccountingGeneralLedgerAccountURL;
 
   public BaseURLValues(
       @Value("${banquito.core.accounts.base-url}") String coreAccountsURL,
       @Value("${banquito.cm.accounting.base-url}") String cmAccountingURL,
-      @Value("${banquito.cm.cmpaymentscollections.base-url}") String cmPaymentscollectionsURL,
+      @Value("${banquito.cm.clients.base-url}") String cmClientsURL,
       @Value("${banquito.cm.accounting.base-url}") String cmAccountingGeneralLedgerURL) {
     this.coreAccountsTransactionsURL = coreAccountsURL;
     this.cmAccountingGeneralLedgerAccountURL =
         cmAccountingGeneralLedgerURL + "/GeneralLedgerAccount";
     this.cmAccountingJournalEntryURL = cmAccountingURL + "/JournalEntry";
-    this.cmCollectionOrderURL = cmPaymentscollectionsURL + "/collection_orders";
+    this.cmClientsAccountsURL = cmClientsURL + "/account";
   }
 }
+

@@ -1,10 +1,8 @@
-package com.banquito.scheduled.collections.dto;
+package com.banquito.scheduledcollections.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
 public class CollectionServiceOfferedDTO {
     private String name;
 

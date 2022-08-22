@@ -1,10 +1,10 @@
-package com.banquito.scheduled.collections;
+package com.banquito.scheduledcollections;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CollectionsApplicationTests {
+class ScheduledcollectionsApplicationTests {
 
 	@Test
 	void contextLoads() {
