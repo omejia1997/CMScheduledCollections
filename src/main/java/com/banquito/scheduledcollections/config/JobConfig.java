@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import com.banquito.scheduledcollections.process.ProcessDataTask;
 import com.banquito.scheduledcollections.process.ReadAndInsertTask;
 import com.banquito.scheduledcollections.service.CollectionOrderService;
 import com.banquito.scheduledcollections.service.SequenceService;
@@ -49,19 +48,10 @@ public class JobConfig {
     }
 
     @Bean
-    protected Step processDataTask() {
-        return steps
-                .get("processDataTask")
-                .tasklet(new ProcessDataTask())
-                .build();
-    }
-
-    @Bean
     public Job processTextFileJob() {
         return jobs
                 .get("processTextFileJob")
                 .start(readAndInsertTask())
-                .next(processDataTask())
                 .build();
     }
 }

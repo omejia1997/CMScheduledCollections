@@ -14,6 +14,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.http.HttpEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import com.banquito.scheduledcollections.config.BaseURLValues;
@@ -41,6 +42,8 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
 
     private final BaseURLValues baseURLs;
 
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
     private final SequenceService sequenceService;
     
     private RestTemplate restTemplate = new RestTemplate();
@@ -48,49 +51,18 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
     @Override
     public void beforeStep(StepExecution arg0) {
         collectionOrders = collectionOrderService.getCollectionOrderRecurrementToPay();
-        /*ResponseEntity<CollectionOrderDTO[]> response= restTemplate.getForEntity(
-              "http://localhost:8081/collectionorder/getCollectionOrderRecurrementToPay", CollectionOrderDTO[].class);
-        CollectionOrderDTO[] objectArray = response.getBody();
-        collectionOrders = Arrays.asList(objectArray);*/
     }
 
     //Validar Fecha de dia sabado
     @Override
     public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
         BigDecimal fullPaymentValue = new BigDecimal(0);
-        log.info("Acabo el proceso bathc "+collectionOrders.size());
-        Integer paidRecords;
         for (CollectionOrder collectionOrder : collectionOrders) {  
-              
-            /*Boolean validation =
-                this.restTemplate.getForObject(
-                    baseURLs.getCmAccountingGeneralLedgerAccountURL()
-                        + "/ledgerAccount/Validation/typeTransaction=COLLECTION",
-                    Boolean.class);*/
-                    
-            //if (validation) {
                 if (collectionOrder.getPending().compareTo(new BigDecimal(0)) == 0) {
                     fullPaymentValue = collectionOrder.getAmount();
                 } else {
                     fullPaymentValue = collectionOrder.getPending();
                 }
-                
-                AccountDTO debtorAccount =
-                    this.restTemplate.getForObject(
-                        baseURLs.getCoreAccountsTransactionsURL()
-                            + "/accounts/accountNumber/"
-                            + collectionOrder.getDebtorAccount(),
-                        AccountDTO.class);
-                if(debtorAccount!=null){
-                if(debtorAccount.getBalance().compareTo(new BigDecimal(0)) > 0 && debtorAccount.getBalance().compareTo(fullPaymentValue) < 0)
-                    fullPaymentValue = debtorAccount.getBalance();
-                else if(debtorAccount.getBalance().compareTo(fullPaymentValue) > 0 || debtorAccount.getBalance().compareTo(fullPaymentValue) == 0)
-                    fullPaymentValue = fullPaymentValue;
-                else
-                    fullPaymentValue =new BigDecimal(0);
-
-                //if(!(this.transactionService.validateAccountFundsRecurrement(collectionOrder.getDebtorAccount(),fullPaymentValue).compareTo(new BigDecimal(0))== 0)){
-                if(!(fullPaymentValue.compareTo(new BigDecimal(0))== 0)){    
                     Collection collectionDb = this.collectionOrderService.findCollectionById(collectionOrder.getCollectionId());
 
                     TransactionDTO transactionDTO =
@@ -105,10 +77,10 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
                             .documentNumber(this.sequenceService.getNextDN())
                             .transactionNumber(this.sequenceService.getNextTN())
                             .build();
-                            
+                    this.kafkaTemplate.send("collections_recurrement", transactionDTO);
                     
                     /*if(this.transactionService.validateTransfer(transactionDTO)){
-                        //this.collectionEventsService.publish(transactionDTO);
+                        //
                         paidRecords = collectionDb.getPaidRecords();
                         paidRecords++;
                         collectionDb.setPaidRecords(paidRecords);
@@ -128,9 +100,6 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
                         this.collectionOrderService.saveCollectionOrder(collectionOrder);
                         this.collectionOrderService.saveCollection(collectionDb);
                     }*/
-                }    
-                }
-            //}
         }
         return RepeatStatus.FINISHED;
     }
@@ -139,11 +108,6 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
 
     @Override
     public ExitStatus afterStep(StepExecution arg0) {
-        // TODO Auto-generated method stub
-        arg0
-          .getJobExecution()
-          .getExecutionContext()
-          .put("collectionOrders", this.collectionOrders);
         return ExitStatus.COMPLETED;
     }
 
