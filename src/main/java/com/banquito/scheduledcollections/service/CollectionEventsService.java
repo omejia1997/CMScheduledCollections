@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CollectionEventsService {
 
-  private final KafkaTemplate<String, Event<?>> producer;
+  //private final KafkaTemplate<String, Event<?>> producer;
+
+  private KafkaTemplate<String, Event<?>> producer;
 
   private String topicPayment;
 

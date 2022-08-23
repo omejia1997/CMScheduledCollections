@@ -22,8 +22,8 @@ public class KafkaCRConsumerConfig {
   @Bean
   public ConsumerFactory<String, List<TransactionDTO>> consumerFactory() {
     Map<String, Object> config = new HashMap<>();
-    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "34.125.80.201:9092");
-    config.put(ConsumerConfig.GROUP_ID_CONFIG, "foo2");
+    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    config.put(ConsumerConfig.GROUP_ID_CONFIG, "fooCollR");
     config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
     config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
@@ -36,7 +36,7 @@ public class KafkaCRConsumerConfig {
   }
 
   @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, List<TransactionDTO>> fooListener() {
+  public ConcurrentKafkaListenerContainerFactory<String, List<TransactionDTO>> fooCollRListener() {
     ConcurrentKafkaListenerContainerFactory<String, List<TransactionDTO>> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(consumerFactory());

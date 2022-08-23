@@ -1,13 +1,7 @@
 package com.banquito.scheduledcollections.service;
 
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +13,6 @@ import com.banquito.scheduledcollections.dao.CollectionOrderRepository;
 import com.banquito.scheduledcollections.dao.CollectionRepository;
 import com.banquito.scheduledcollections.dto.JournalDTO;
 import com.banquito.scheduledcollections.enums.CollectionOrderEnum;
-import com.banquito.scheduledcollections.enums.PaymentWayEnum;
 import com.banquito.scheduledcollections.exception.NotFoundException;
 import com.banquito.scheduledcollections.model.CollectionOrder;
 import com.banquito.scheduledcollections.model.Collection;
@@ -33,7 +26,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 public class CollectionOrderService {
   private final CollectionOrderRepository collectionOrderRepository;
   private final CollectionRepository collectionRepository;
-  private final RestTemplate restTemplate;
+  private RestTemplate restTemplate = new RestTemplate();
   private final BaseURLValues baseURLs;
 
   public Collection findCollectionById(String collectionId) {
@@ -70,13 +63,12 @@ public class CollectionOrderService {
         this.collectionOrderRepository.findByInternalId(internalId);
     return collectionOrderOpt.orElse(null);
   }
-
+  
   @KafkaListener(
       topics = "transaction_recurrement",
       groupId = "fooCollR",
       containerFactory = "fooCollRListener")
   public void payCollectionOrderResponse(TransactionDTO transactionDTO) throws NotFoundException {
-    BigDecimal toPay;
     String internalId = transactionDTO.getReference();
     BigDecimal fullPaymentValue = transactionDTO.getAmount();
     CollectionOrder collectionOrderDb = this.findByInternalId(internalId);
@@ -105,18 +97,17 @@ public class CollectionOrderService {
       collectionOrderDb.setJournalId(journalCreated.getJournalId());
       collectionDb.setPaidRecords(collectionDb.getPaidRecords() + 1);
 
-      /*if (collectionOrderDb.getPending().compareTo(new BigDecimal(0)) == 0) {
-          toPay = collectionOrderDb.getAmount();
-      } else {
-          fullPaymentValue = collectionOrderDb.getPending();
-      }*/
       if(fullPaymentValue.equals(collectionOrderDb.getAmount())){
         collectionOrderDb.setState(CollectionOrderEnum.PAID.getValue());
         collectionOrderDb.setPaid(collectionOrderDb.getAmount());
       }else{
-        toPay = collectionOrderDb.getPaid().add(fullPaymentValue);
-        //collectionOrderDb.setPending()
-        //collectionOrderDb.setPaid(toPay);
+        collectionOrderDb.setPaid(collectionOrderDb.getPaid().add(fullPaymentValue));
+        if((collectionOrderDb.getPaid().add(fullPaymentValue)).compareTo(collectionOrderDb.getAmount())==0){
+          collectionOrderDb.setState(CollectionOrderEnum.PAID.getValue());
+          collectionOrderDb.setPending(new BigDecimal(0));
+        }else{
+          collectionOrderDb.setPending(collectionOrderDb.getAmount().subtract(collectionOrderDb.getPaid()));
+        }
       }
 
       this.collectionOrderRepository.save(collectionOrderDb);

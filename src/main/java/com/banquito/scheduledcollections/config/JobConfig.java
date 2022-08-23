@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import com.banquito.scheduledcollections.process.ReadAndInsertTask;
 import com.banquito.scheduledcollections.service.CollectionOrderService;
 import com.banquito.scheduledcollections.service.SequenceService;
-import com.banquito.scheduledcollections.service.relational.TransactionService;
 
 @Configuration
 @EnableAutoConfiguration
@@ -29,21 +29,21 @@ public class JobConfig {
 
     @Autowired
     private CollectionOrderService collectionOrderService;
-    
-    @Autowired
-    private TransactionService transactionService;
 
     @Autowired
     private BaseURLValues baseURLs;
 
     @Autowired
     private SequenceService sequenceService;
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
     
     @Bean
     protected Step readAndInsertTask() {
         return steps
                 .get("readAndInsertTask")
-                .tasklet(new ReadAndInsertTask(collectionOrderService,transactionService,baseURLs,sequenceService))
+                .tasklet(new ReadAndInsertTask(collectionOrderService,baseURLs,sequenceService,kafkaTemplate))
                 .build();
     }
 

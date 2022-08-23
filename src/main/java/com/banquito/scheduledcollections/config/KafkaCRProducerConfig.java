@@ -15,7 +15,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 @Configuration
 public class KafkaCRProducerConfig {
 
-  @Value("${spring.kafka.bootstrap-serve0rs}")
+  @Value("${spring.kafka.bootstrap-servers}")
   private String boostrapServers;
 
   @Bean
