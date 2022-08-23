@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.client.RestTemplate;
 
 import com.banquito.scheduledcollections.process.ReadAndInsertTask;
 import com.banquito.scheduledcollections.service.CollectionOrderService;

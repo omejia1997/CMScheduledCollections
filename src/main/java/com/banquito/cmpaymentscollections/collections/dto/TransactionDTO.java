@@ -1,4 +1,4 @@
-package com.banquito.core.account.dto;
+package com.banquito.cmpaymentscollections.collections.dto;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -37,3 +37,4 @@ public class TransactionDTO {
 
   private String transactionNumber;
 }
+

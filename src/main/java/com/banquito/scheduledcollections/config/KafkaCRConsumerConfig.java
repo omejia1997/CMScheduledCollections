@@ -1,6 +1,6 @@
 package com.banquito.scheduledcollections.config;
 
-import com.banquito.core.account.dto.TransactionDTO;
+import com.banquito.cmpaymentscollections.collections.dto.TransactionDTO;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;

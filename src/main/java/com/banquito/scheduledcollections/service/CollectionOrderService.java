@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.banquito.core.account.dto.TransactionDTO;
+import com.banquito.cmpaymentscollections.collections.dto.TransactionDTO;
 import com.banquito.scheduledcollections.config.BaseURLValues;
 import com.banquito.scheduledcollections.dao.CollectionOrderRepository;
 import com.banquito.scheduledcollections.dao.CollectionRepository;

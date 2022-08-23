@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.math.RoundingMode;
 
+import com.banquito.cmpaymentscollections.collections.dto.TransactionDTO;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
@@ -18,7 +19,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import com.banquito.scheduledcollections.config.BaseURLValues;
-import com.banquito.scheduledcollections.dto.relational.TransactionDTO;
 import com.banquito.scheduledcollections.model.Collection;
 import com.banquito.scheduledcollections.model.CollectionOrder;
 import com.banquito.scheduledcollections.service.CollectionOrderService;
@@ -70,7 +70,7 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
                     .documentNumber(this.sequenceService.getNextDN())
                     .transactionNumber(this.sequenceService.getNextTN())
                     .build();
-            //this.kafkaTemplate.send("collections_recurrement", transactionDTO);
+            this.kafkaTemplate.send("collections_recurrement", transactionDTO);
         }
         return RepeatStatus.FINISHED;
     }
