@@ -16,6 +16,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.banquito.scheduledcollections.config.BaseURLValues;
@@ -70,7 +71,7 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
                     .documentNumber(this.sequenceService.getNextDN())
                     .transactionNumber(this.sequenceService.getNextTN())
                     .build();
-            this.kafkaTemplate.send("collections_recurrement", transactionDTO);
+            //this.kafkaTemplate.send("collections_recurrement", transactionDTO);
         }
         return RepeatStatus.FINISHED;
     }

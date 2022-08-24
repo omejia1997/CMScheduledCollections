@@ -27,4 +27,3 @@ public class BaseURLValues {
     this.cmClientsAccountsURL = cmClientsURL + "/account";
   }
 }
-

@@ -15,12 +15,14 @@ import com.banquito.scheduledcollections.process.ReadAndInsertTask;
 import com.banquito.scheduledcollections.service.CollectionOrderService;
 import com.banquito.scheduledcollections.service.SequenceService;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableAutoConfiguration
 @EnableBatchProcessing
 public class JobConfig {
 
-    @Autowired
+     @Autowired
     private JobBuilderFactory jobs;
 
     @Autowired
