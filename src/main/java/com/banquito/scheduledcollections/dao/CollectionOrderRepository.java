@@ -12,6 +12,9 @@ public interface CollectionOrderRepository extends MongoRepository<CollectionOrd
   List<CollectionOrder> findByStateAndPaymentWayAndStartCollectionDateGreaterThanAndEndCollectionDateLessThan(
       String state, String paymentWay, Date startCollectionDate, Date endCollectionDate);
 
+  List<CollectionOrder> findByStateAndPaymentWay(
+          String state, String paymentWay);
+
   List<CollectionOrder> findByStateOrderByCollectionId(
       String state);
 

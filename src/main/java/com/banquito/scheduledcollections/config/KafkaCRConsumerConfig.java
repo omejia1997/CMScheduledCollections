@@ -20,7 +20,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 @Configuration
 public class KafkaCRConsumerConfig {
   @Bean
-  public ConsumerFactory<String, List<TransactionDTO>> consumerFactory() {
+  public ConsumerFactory<String, TransactionDTO> consumerFactory() {
     Map<String, Object> config = new HashMap<>();
     config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
     config.put(ConsumerConfig.GROUP_ID_CONFIG, "fooCollR");
@@ -28,16 +28,15 @@ public class KafkaCRConsumerConfig {
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
     config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
     ObjectMapper om = new ObjectMapper();
-    JavaType type = om.getTypeFactory().constructParametricType(List.class, TransactionDTO.class);
     return new DefaultKafkaConsumerFactory<>(
         config,
         new StringDeserializer(),
-        new JsonDeserializer<List<TransactionDTO>>(type, om, false));
+        new JsonDeserializer<>(TransactionDTO.class));
   }
 
   @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, List<TransactionDTO>> fooCollRListener() {
-    ConcurrentKafkaListenerContainerFactory<String, List<TransactionDTO>> factory =
+  public ConcurrentKafkaListenerContainerFactory<String, TransactionDTO> fooCollRListener() {
+    ConcurrentKafkaListenerContainerFactory<String, TransactionDTO> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(consumerFactory());
     return factory;

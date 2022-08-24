@@ -51,12 +51,13 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
     @Override
     public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
         BigDecimal fullPaymentValue = new BigDecimal(0);
+        log.info("/// tamaño {}", collectionOrders.size() );
         for (CollectionOrder collectionOrder : collectionOrders) {  
-            /*if (collectionOrder.getPending().compareTo(new BigDecimal(0)) == 0) {
+            if (collectionOrder.getPending().compareTo(new BigDecimal(0)) == 0) {
                 fullPaymentValue = collectionOrder.getAmount();
             } else {
                 fullPaymentValue = collectionOrder.getPending();
-            }*/            
+            }
             Collection collectionDb = this.collectionOrderService.findCollectionById(collectionOrder.getCollectionId());
             
             TransactionDTO transactionDTO =
@@ -64,15 +65,16 @@ public class ReadAndInsertTask implements Tasklet, StepExecutionListener {
                     .debtorAccountNumber(collectionOrder.getDebtorAccount())
                     .creditorAccountNumber(collectionDb.getCreditorAccount())
                     .amount(fullPaymentValue.setScale(2, RoundingMode.HALF_UP))
-                    .reference(collectionOrder.getReference())
+                    .reference(collectionOrder.getInternalId())
                     .channel("CM COBROS BANQUITO")
                     .serviceLevel("SEPA")
                     .externalOperation(this.sequenceService.getNextEO())
                     .documentNumber(this.sequenceService.getNextDN())
                     .transactionNumber(this.sequenceService.getNextTN())
                     .build();
-            //this.kafkaTemplate.send("collections_recurrement", transactionDTO);
+            this.kafkaTemplate.send("collections_recurrement", transactionDTO);
         }
+
         return RepeatStatus.FINISHED;
     }
     

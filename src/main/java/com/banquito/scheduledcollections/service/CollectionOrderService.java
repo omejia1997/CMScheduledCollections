@@ -2,6 +2,8 @@ package com.banquito.scheduledcollections.service;
 
 import java.math.BigDecimal;
 import java.util.*;
+
+import com.banquito.scheduledcollections.enums.PaymentWayEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,17 +48,23 @@ public class CollectionOrderService {
     this.collectionRepository.save(collection);
   }
 
-  /*public List<CollectionOrder> getCollectionOrderRecurrementToPay() {
-    return this.collectionOrderRepository
-        .findByStateAndPaymentWayAndStartCollectionDateGreaterThanAndEndCollectionDateLessThan(
-            CollectionOrderEnum.TOPAY.getValue(),PaymentWayEnum.RECURRENT.getValue(),new Date(),new Date());
-  }*/
+//  public List<CollectionOrder> getCollectionOrderRecurrementToPay() {
+//    return this.collectionOrderRepository
+//        .findByStateAndPaymentWayAndStartCollectionDateGreaterThanAndEndCollectionDateLessThan(
+//            CollectionOrderEnum.TOPAY.getValue(), PaymentWayEnum.RECURRENT.getValue(),new Date(),new Date());
+//  }
 
-  public List<CollectionOrder> getCollectionOrderRecurrementToPay() {
+    public List<CollectionOrder> getCollectionOrderRecurrementToPay() {
     return this.collectionOrderRepository
-        .findByStateOrderByCollectionId(
-            CollectionOrderEnum.TOPAY.getValue());
+        .findByStateAndPaymentWay(
+            CollectionOrderEnum.TOPAY.getValue(), PaymentWayEnum.RECURRENT.getValue());
   }
+
+//  public List<CollectionOrder> getCollectionOrderRecurrementToPay() {
+//    return this.collectionOrderRepository
+//        .findByStateOrderByCollectionId(
+//            CollectionOrderEnum.TOPAY.getValue());
+//  }
 
   public CollectionOrder findByInternalId(String internalId) {
     Optional<CollectionOrder> collectionOrderOpt =
@@ -87,6 +95,7 @@ public class CollectionOrderService {
               .journalId("")
               .amount(collectionOrderDb.getAmount())
               .transactionReference(transactionDTO.getTransactionNumber())
+                  .description(transactionDTO.getReference())
               .transactionDate(new Date())
               .type("COLLECTION")
               .build();
@@ -97,7 +106,7 @@ public class CollectionOrderService {
       collectionOrderDb.setJournalId(journalCreated.getJournalId());
       collectionDb.setPaidRecords(collectionDb.getPaidRecords() + 1);
 
-      if(fullPaymentValue.equals(collectionOrderDb.getAmount())){
+      if(fullPaymentValue.compareTo(collectionOrderDb.getAmount())==0){
         collectionOrderDb.setState(CollectionOrderEnum.PAID.getValue());
         collectionOrderDb.setPaid(collectionOrderDb.getAmount());
       }else{
@@ -106,7 +115,7 @@ public class CollectionOrderService {
           collectionOrderDb.setState(CollectionOrderEnum.PAID.getValue());
           collectionOrderDb.setPending(new BigDecimal(0));
         }else{
-          collectionOrderDb.setPending(collectionOrderDb.getAmount().subtract(collectionOrderDb.getPaid()));
+          collectionOrderDb.setPending(collectionOrderDb.getPaid().subtract(collectionOrderDb.getAmount()));
         }
       }
 

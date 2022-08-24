@@ -2,6 +2,8 @@ package com.banquito.cmpaymentscollections.collections.dto;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,5 +38,7 @@ public class TransactionDTO {
   private String documentNumber;
 
   private String transactionNumber;
+
+  private Date creationDate;
 }
 
